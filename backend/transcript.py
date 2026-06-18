@@ -1,7 +1,32 @@
 import re
+import os
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
-_api = YouTubeTranscriptApi()
+
+def _build_api() -> YouTubeTranscriptApi:
+    proxy_url = os.getenv("WEBSHARE_PROXY_URL")
+    if proxy_url:
+        try:
+            from youtube_transcript_api.proxies import WebshareProxyConfig
+            username, rest = proxy_url.split(":", 1)
+            password, host_port = rest.rsplit("@", 1)
+            return YouTubeTranscriptApi(
+                proxy_config=WebshareProxyConfig(
+                    proxy_username=username,
+                    proxy_password=password,
+                )
+            )
+        except Exception:
+            pass
+
+    generic_proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+    if generic_proxy:
+        return YouTubeTranscriptApi(proxies={"http": generic_proxy, "https": generic_proxy})
+
+    return YouTubeTranscriptApi()
+
+
+_api = _build_api()
 
 
 def extract_video_id(url: str) -> str:
@@ -19,11 +44,9 @@ def extract_video_id(url: str) -> str:
 def get_transcript(url: str) -> dict:
     video_id = extract_video_id(url)
     try:
-        # v1.x API: instance method, try English first then any available language
         try:
             fetched = _api.fetch(video_id, languages=["en"])
         except Exception:
-            # Fallback: list available transcripts and fetch the first one
             transcript_list = _api.list(video_id)
             first = next(iter(transcript_list))
             fetched = first.fetch()
