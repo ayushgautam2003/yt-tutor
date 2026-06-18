@@ -47,6 +47,10 @@ class ExtractRequest(BaseModel):
     urls: list[str]
 
 
+class ExtractRawRequest(BaseModel):
+    texts: list[str]  # raw transcript texts pasted by the user
+
+
 class ChatRequest(BaseModel):
     session_id: str
     messages: list[dict]
@@ -93,6 +97,33 @@ async def extract(req: ExtractRequest):
         "videos_processed": len(results),
         "chunk_count": chunk_count,
         "errors": errors,
+    }
+
+
+@app.post("/extract-raw")
+async def extract_raw(req: ExtractRawRequest):
+    texts = [t.strip() for t in req.texts if t.strip()]
+    if not texts:
+        raise HTTPException(status_code=400, detail="No transcript text provided")
+    if len(texts) > 3:
+        raise HTTPException(status_code=400, detail="Maximum 3 transcripts allowed")
+
+    results = [
+        {"url": f"manual-{i+1}", "video_id": f"manual-{i+1}", "transcript": text}
+        for i, text in enumerate(texts)
+    ]
+
+    session_id = str(uuid.uuid4())
+    start = time.time()
+    chunk_count = await asyncio.to_thread(build_vectorstore, session_id, results)
+    log_extract(session_id, len(results), chunk_count, time.time() - start)
+    logger.info(f"[EXTRACT-RAW] session={session_id[:8]} texts={len(results)} chunks={chunk_count}")
+
+    return {
+        "session_id": session_id,
+        "videos_processed": len(results),
+        "chunk_count": chunk_count,
+        "errors": [],
     }
 
 
