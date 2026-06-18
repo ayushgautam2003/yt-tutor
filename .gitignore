@@ -1,0 +1,38 @@
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Virtual environments ───────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── Environment / secrets ─────────────────────────────────
+.env
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────
+backend/logs/
+*.log
+
+# ── Node ──────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.env
+!frontend/.env.example
+
+# ── OS ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE / tooling ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+.claude/

@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: yt-tutor-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: MODEL_NAME
+        value: gpt-4o
+      - key: TEMPERATURE
+        value: "0.3"
+      - key: MAX_TOKENS
+        value: "512"
+      - key: TEACHING_LEVEL
+        value: beginner
+      - key: RESPONSE_STYLE
+        value: concise
+      - key: RETRIEVAL_K
+        value: "5"
+      - key: ALLOWED_ORIGINS
+        sync: false
