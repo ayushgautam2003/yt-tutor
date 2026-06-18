@@ -3,9 +3,10 @@ uvicorn[standard]
 youtube-transcript-api
 python-dotenv
 pydantic-settings
-langchain
-langchain-openai
-langchain-pinecone
+langchain==0.3.30
+langchain-openai==0.3.35
+langchain-pinecone==0.2.13
 langchain-text-splitters
-pinecone
+pinecone==7.3.0
 tiktoken
+simsimd>=5.9.11
